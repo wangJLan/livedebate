@@ -1,0 +1,18 @@
+[
+  {
+    "id": "stream-001",
+    "name": "直播辩论专场",
+    "url": "rtmp://localhost:1935/live/debate",
+    "enabled": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "stream-002",
+    "name": "备用直播流",
+    "url": "rtmp://localhost:1935/live/debate-backup",
+    "enabled": false,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
