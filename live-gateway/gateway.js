@@ -1,5 +1,5 @@
-// 直播辩论系统 - 网关中间层
-// 职责：CORS、代理转发(/api -> backend)、WebSocket中继、SRS直播流代理、管理后台静态页面
+// 直播辩论系统 - 统一服务入口
+// 包含：业务路由、WebSocket、SRS代理、管理后台静态页面
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -7,10 +7,10 @@ const path = require('path');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const cfg = require('./config/server-mode.node.js');
-const { getCurrentServerConfig, printConfig, BACKEND_SERVER_URL, PRIORITIZE_BACKEND_SERVER, SRS_SERVER_URL } = cfg;
+const { getCurrentServerConfig, SRS_SERVER_URL } = cfg;
+const mockData = require('../backend/mock/data');
 
-const config = getCurrentServerConfig();
-const PORT = config.port;
+const PORT = process.env.PORT || process.env.GATEWAY_PORT || 3001;
 
 const app = express();
 
@@ -58,7 +58,6 @@ if (WebSocketServer) {
         if (data.type === 'ping') {
           ws.send(JSON.stringify({ type: 'pong' }));
         }
-        // 其他消息类型可根据需要扩展
       } catch (e) {
         console.error('WS 消息解析失败:', e);
       }
@@ -76,7 +75,6 @@ if (WebSocketServer) {
   });
 }
 
-// 广播给所有客户端
 function broadcast(type, data) {
   if (!wss) return;
   const msg = JSON.stringify({ type, data, timestamp: Date.now() });
@@ -106,30 +104,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// ==================== /api 代理到 backend ====================
-if (BACKEND_SERVER_URL && PRIORITIZE_BACKEND_SERVER) {
-  console.log(`🔗 API 代理: /api/* -> ${BACKEND_SERVER_URL}/api/*`);
+// ==================== 业务路由（直接挂载，无需代理） ====================
+app.use('/api', require('../backend/routes/votes'));
+app.use('/api', require('../backend/routes/debate'));
+app.use('/api', require('../backend/routes/ai'));
+app.use('/api', require('../backend/routes/live'));
+app.use('/api', require('../backend/routes/streams'));
+app.use('/api', require('../backend/routes/admin'));
+app.use('/api', require('../backend/routes/wechat'));
 
-  const apiProxy = createProxyMiddleware({
-    target: BACKEND_SERVER_URL,
-    changeOrigin: true,
-    pathRewrite: (pathStr) => '/api' + pathStr,
-    onProxyReq: (proxyReq, req) => {
-      console.log(`🔄 代理 ${req.method} ${req.path} -> ${BACKEND_SERVER_URL}/api${req.path}`);
-    },
-    onProxyRes: (proxyRes, req) => {
-      console.log(`✅ 代理 ${req.path} <- ${proxyRes.statusCode}`);
-    },
-    onError: (err, req, res) => {
-      console.error(`❌ 代理错误 ${req.path}:`, err.message);
-      if (!res.headersSent) {
-        res.status(502).json({ code: 502, message: `无法连接后端: ${BACKEND_SERVER_URL}`, error: err.message });
-      }
-    }
-  });
-
-  app.use('/api', apiProxy);
-}
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // ==================== /live 代理到 SRS ====================
 if (SRS_SERVER_URL) {
@@ -142,7 +128,7 @@ if (SRS_SERVER_URL) {
     onProxyReq: (proxyReq, req) => {
       console.log(`🔄 SRS ${req.method} ${req.path}`);
     },
-    onProxyRes: (proxyRes, req) => {
+    onProxyRes: (proxyRes) => {
       proxyRes.headers['Access-Control-Allow-Origin'] = '*';
     },
     onError: (err, req, res) => {
@@ -161,12 +147,26 @@ app.use((req, res) => {
   res.status(404).json({ code: 404, message: `路由 ${req.url} 不存在` });
 });
 
+// ==================== 错误处理 ====================
+app.use((err, req, res, next) => {
+  console.error('❌ 服务错误:', err);
+  res.status(500).json({ code: 500, message: '服务器内部错误: ' + err.message });
+});
+
 // ==================== 启动 ====================
+mockData.initAll();
+
 server.listen(PORT, '0.0.0.0', () => {
+  const cfg = getCurrentServerConfig();
   console.log('');
-  printConfig();
+  console.log('═══════════════════════════════════════');
+  console.log('📋 直播辩论系统 - 统一服务');
+  console.log(`🚀 运行地址: http://localhost:${PORT}`);
+  console.log(`📡 API 前缀: /api`);
   console.log(`🌐 WebSocket: ${wss ? 'ws://localhost:' + PORT + '/ws' : '未启用'}`);
-  console.log(`✅ 网关已启动\n`);
+  console.log(`📺 SRS: ${SRS_SERVER_URL}`);
+  console.log('═══════════════════════════════════════');
+  console.log('');
 });
 
 module.exports = { app, broadcast };
