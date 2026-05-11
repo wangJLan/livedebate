@@ -140,12 +140,50 @@ function initStatistics() {
 }
 
 /**
+ * 初始化 mock 投票数据
+ */
+function initVotes() {
+  const v = db.votes.get();
+  const total = v.leftVotes + v.rightVotes;
+  if (total >= 100) return;
+  db.votes.update(128, 95);
+}
+
+/**
+ * 初始化更多 mock 用户
+ */
+function initMoreUsers() {
+  const names = [
+    { nick: '辩论爱好者_小李', avatar: '🧑' },
+    { nick: '哲学思考者', avatar: '🤔' },
+    { nick: '社会科学院_王教授', avatar: '👨‍🏫' },
+    { nick: '深夜思想家', avatar: '🌙' },
+    { nick: '逻辑达人', avatar: '🧩' },
+    { nick: '观点碰撞机', avatar: '💥' },
+    { nick: '理性之声', avatar: '📢' },
+    { nick: '真相探索者', avatar: '🔍' },
+    { nick: '辩论萌新', avatar: '🐣' },
+    { nick: '吃瓜群众_001', avatar: '🍉' },
+    { nick: 'AI观察员', avatar: '🤖' },
+    { nick: '自由评论家', avatar: '✍️' },
+  ];
+  names.forEach((n, i) => {
+    const existing = db.users.getById('mock_user_' + (i + 2));
+    if (!existing) {
+      db.users.createOrUpdate({ id: 'mock_user_' + (i + 2), nickName: n.nick, avatarUrl: n.avatar });
+    }
+  });
+}
+
+/**
  * 初始化所有 mock 数据
  */
 function initAll() {
   console.log('📦 初始化 Mock 数据...');
   initStreams();
   initUsers();
+  initMoreUsers();
+  initVotes();
   initAIContent();
   initStatistics();
   console.log('✅ Mock 数据初始化完成');
