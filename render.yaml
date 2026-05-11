@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: live-debate
+    runtime: node
+    plan: free
+    buildCommand: npm run install:all
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BACKEND_PORT
+        value: '3000'

@@ -12,7 +12,7 @@ const WECHAT = {
   useMock: true
 };
 
-const GATEWAY_PORT = process.env.GATEWAY_PORT || 3001;
+const GATEWAY_PORT = process.env.PORT || process.env.GATEWAY_PORT || 3001;
 
 const getCurrentServerConfig = () => ({
   mode: USE_MOCK_SERVER ? 'mock' : 'proxy',
