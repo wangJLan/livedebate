@@ -89,6 +89,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
+// ==================== 数据大屏 ====================
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static', 'dashboard.html'));
+});
+
 // ==================== 管理后台静态页面 ====================
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'index.html'));
