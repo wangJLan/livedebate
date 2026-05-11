@@ -93,14 +93,37 @@
     .debate-topic { margin-bottom: 24px; }
     .debate-topic .position-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
     .position-card {
-      padding: 20px; border-radius: 10px; text-align: center;
+      padding: 20px; border-radius: 10px; text-align: center; cursor: pointer;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
     }
-    .position-card.left { background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); }
-    .position-card.right { background: rgba(52,152,219,0.15); border: 1px solid rgba(52,152,219,0.3); }
+    .position-card:hover { transform: translateY(-3px); }
+    .position-card:active { transform: translateY(0); }
+    .position-card.left { background: rgba(231,76,60,0.15); border: 2px solid rgba(231,76,60,0.3); }
+    .position-card.left:hover { background: rgba(231,76,60,0.25); border-color: rgba(231,76,60,0.6); box-shadow: 0 8px 25px rgba(231,76,60,0.2); }
+    .position-card.right { background: rgba(52,152,219,0.15); border: 2px solid rgba(52,152,219,0.3); }
+    .position-card.right:hover { background: rgba(52,152,219,0.25); border-color: rgba(52,152,219,0.6); box-shadow: 0 8px 25px rgba(52,152,219,0.2); }
     .position-card .side-label { font-size: 12px; color: #999; margin-bottom: 4px; }
     .position-card .side-text { font-size: 18px; font-weight: 600; }
     .position-card.left .side-text { color: #e74c3c; }
     .position-card.right .side-text { color: #3498db; }
+    .position-card .side-hint { font-size: 11px; color: #666; margin-top: 6px; }
+    .position-card .vote-badge { display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+    .position-card.left .vote-badge { background: rgba(231,76,60,0.2); color: #e74c3c; }
+    .position-card.right .vote-badge { background: rgba(52,152,219,0.2); color: #3498db; }
+    /* 投票动画 */
+    .position-card .ripple {
+      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.3);
+      transform: scale(0); animation: ripple 0.6s ease-out; pointer-events: none;
+    }
+    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+    @keyframes popIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .vote-pop { animation: popIn 0.4s ease-out; }
+    .position-card .vote-badge { transition: all 0.3s; }
+    .position-card.voted .vote-badge { transform: scale(1.1); }
 
     /* Vote Distribution */
     .vote-bar-wrap { margin: 12px 0; }
@@ -224,13 +247,15 @@
         <p style="font-size:14px;color:#888;" id="debateDesc"></p>
       </div>
       <div class="position-cards">
-        <div class="position-card left">
-          <div class="side-label">正方立场</div>
+        <div class="position-card left" id="leftCard" onclick="quickVote('left')">
+          <div class="side-label">正方立场 · 点击投票</div>
           <div class="side-text" id="leftPosition">--</div>
+          <div class="vote-badge" id="leftVoteBadge">当前 0 票</div>
         </div>
-        <div class="position-card right">
-          <div class="side-label">反方立场</div>
+        <div class="position-card right" id="rightCard" onclick="quickVote('right')">
+          <div class="side-label">反方立场 · 点击投票</div>
           <div class="side-text" id="rightPosition">--</div>
+          <div class="vote-badge" id="rightVoteBadge">当前 0 票</div>
         </div>
       </div>
     </div>
@@ -350,6 +375,8 @@
       document.getElementById('rightBar').style.width = rp + '%';
       document.getElementById('leftCount').textContent = d.leftVotes + '票';
       document.getElementById('rightCount').textContent = d.rightVotes + '票';
+      document.getElementById('leftVoteBadge').textContent = '当前 ' + d.leftVotes + ' 票';
+      document.getElementById('rightVoteBadge').textContent = '当前 ' + d.rightVotes + ' 票';
 
       updateChart(lp, rp);
     }
@@ -458,19 +485,36 @@
     }
 
     async function quickVote(side) {
+      // 涟漪动画
+      const card = document.getElementById(side === 'left' ? 'leftCard' : 'rightCard');
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = '50%';
+      ripple.style.top = '50%';
+      ripple.style.width = ripple.style.height = '20px';
+      ripple.style.marginLeft = '-10px';
+      ripple.style.marginTop = '-10px';
+      card.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+
+      // 立即更新本地显示
+      const badge = document.getElementById(side === 'left' ? 'leftVoteBadge' : 'rightVoteBadge');
+      card.classList.add('voted');
+      setTimeout(() => card.classList.remove('voted'), 400);
+
       try {
         const res = await fetch('/api/user-vote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: 'demo_user',
-            voteType: side === 'left' ? 'left' : 'right',
-            tickets: 10
+            side: side,
+            votes: 10
           })
         });
         const json = await res.json();
         if (json.code === 0) {
-          showToast(side === 'left' ? '已支持正方 +10票' : '已支持反方 +10票');
+          const sideName = side === 'left' ? '正方' : '反方';
+          showToast('✅ 已为' + sideName + '投票 +10票！');
           refreshAll();
         } else {
           showToast(json.message || '投票失败', true);
