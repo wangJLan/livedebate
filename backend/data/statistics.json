@@ -1,0 +1,51 @@
+{
+  "totalVotes": 100,
+  "totalUsers": 1,
+  "totalStreams": 2,
+  "totalLiveDays": 7,
+  "dailyStats": [
+    {
+      "date": "2026-05-05",
+      "votes": 34,
+      "users": 14,
+      "streams": 2
+    },
+    {
+      "date": "2026-05-06",
+      "votes": 49,
+      "users": 15,
+      "streams": 1
+    },
+    {
+      "date": "2026-05-07",
+      "votes": 20,
+      "users": 17,
+      "streams": 1
+    },
+    {
+      "date": "2026-05-08",
+      "votes": 36,
+      "users": 12,
+      "streams": 2
+    },
+    {
+      "date": "2026-05-09",
+      "votes": 34,
+      "users": 19,
+      "streams": 2
+    },
+    {
+      "date": "2026-05-10",
+      "votes": 40,
+      "users": 11,
+      "streams": 1
+    },
+    {
+      "date": "2026-05-11",
+      "votes": 42,
+      "users": 12,
+      "streams": 2
+    }
+  ],
+  "updatedAt": "2026-05-11T12:27:53.781Z"
+}

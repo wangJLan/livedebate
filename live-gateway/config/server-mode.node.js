@@ -1,70 +1,46 @@
-// config/server-mode.node.js (Node.js后端专用)
-const USE_MOCK_SERVER = true; // 改为 true 使用本地Spring Boot后端
-const LOCAL_SERVER_URL = 'http://localhost:8081'; // 后端服务端口改为8081
-const REAL_SERVER_URL = 'http://localhost:8081'; // 连接本地Spring Boot后端
-const REAL_SERVER_PORT = 8081; // 后端服务器端口
-const REAL_WECHAT_CONFIG = {
-    appid: 'wx94289b0d2ca7a802',
-    secret: '10409c1193a326a7b328f675b1776195'
-};
+// 网关配置
+const USE_MOCK_SERVER = false; // 关闭mock模式，全部代理到backend
+const BACKEND_SERVER_URL = 'http://localhost:3000'; // 指向新的backend服务
+const PRIORITIZE_BACKEND_SERVER = true; // 所有API请求代理到backend
+
 const getLocalIP = () => '192.168.31.189';
-const MOCK_SERVER_CONFIG = {
-    host: getLocalIP(),
-    port: 3001, // 网关使用3001端口，避免与其他服务冲突
-    url: `http://${getLocalIP()}:3001`
+const SRS_SERVER_URL = 'http://192.168.31.189:8086'; // SRS流媒体地址
+
+const WECHAT = {
+  appid: process.env.WECHAT_APPID || 'wx94289b0d2ca7a802',
+  secret: process.env.WECHAT_SECRET || 'YOUR_APP_SECRET_HERE',
+  useMock: true
 };
-const getCurrentServerConfig = () => {
-    if (USE_MOCK_SERVER) {
-        return {
-            mode: 'mock',
-            url: MOCK_SERVER_CONFIG.url,
-            host: MOCK_SERVER_CONFIG.host,
-            port: MOCK_SERVER_CONFIG.port,
-            wechat: {
-                useMock: true,
-                appid: 'wx94289b0d2ca7a802',
-                secret: '10409c1193a326a7b328f675b1776195'
-            }
-        };
-    } else {
-        // 使用真实服务器，直接连接中间层
-        return {
-            mode: 'real',
-            url: REAL_SERVER_URL,
-            port: REAL_SERVER_PORT,  // 使用8080端口，与前端配置保持一致
-            wechat: {
-                useMock: false,
-                appid: REAL_WECHAT_CONFIG.appid,
-                secret: REAL_WECHAT_CONFIG.secret
-            }
-        };
-    }
-};
+
+const GATEWAY_PORT = process.env.GATEWAY_PORT || 3001;
+
+const getCurrentServerConfig = () => ({
+  mode: USE_MOCK_SERVER ? 'mock' : 'proxy',
+  port: GATEWAY_PORT,
+  url: `http://${getLocalIP()}:${GATEWAY_PORT}`,
+  wechat: WECHAT,
+  backendUrl: BACKEND_SERVER_URL,
+  srsUrl: SRS_SERVER_URL
+});
+
 const printConfig = () => {
-    const config = getCurrentServerConfig();
-    console.log('═══════════════════════════════════════');
-    console.log('📋 服务器配置信息');
-    console.log('═══════════════════════════════════════');
-    console.log(`模式: ${config.mode === 'mock' ? '🧪 模拟服务器' : '🌐 真实服务器'}`);
-    console.log(`地址: ${config.url}`);
-    if (config.mode === 'mock') {
-        console.log(`本地访问: http://localhost:${config.port}`);
-        console.log(`局域网访问: ${config.url}`);
-    }
-    console.log(`微信登录: ${config.wechat.useMock ? '模拟模式' : '真实模式'}`);
-    if (!config.wechat.useMock) {
-        console.log(`微信 AppID: ${config.wechat.appid}`);
-        console.log(`微信 Secret: ${config.wechat.secret ? config.wechat.secret.substring(0, 8) + '...' : '未设置'}`);
-    }
-    console.log('═══════════════════════════════════════');
+  const cfg = getCurrentServerConfig();
+  console.log('═══════════════════════════════════════');
+  console.log('📋 网关配置');
+  console.log('═══════════════════════════════════════');
+  console.log(`模式: ${cfg.mode === 'proxy' ? '🔗 代理模式 -> ' + cfg.backendUrl : '🧪 模拟模式'}`);
+  console.log(`端口: ${cfg.port}`);
+  console.log(`SRS: ${cfg.srsUrl}`);
+  console.log('═══════════════════════════════════════');
 };
+
 module.exports = {
-    USE_MOCK_SERVER,
-    MOCK_SERVER_CONFIG,
-    REAL_SERVER_URL,
-    REAL_SERVER_PORT,
-    REAL_WECHAT_CONFIG,
-    getCurrentServerConfig,
-    printConfig,
-    LOCAL_SERVER_URL,
+  USE_MOCK_SERVER,
+  BACKEND_SERVER_URL,
+  PRIORITIZE_BACKEND_SERVER,
+  SRS_SERVER_URL,
+  getCurrentServerConfig,
+  printConfig,
+  getLocalIP,
+  WECHAT
 };

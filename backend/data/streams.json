@@ -1,0 +1,20 @@
+[
+  {
+    "id": "stream-1778502473773",
+    "name": "主直播流",
+    "url": "rtmp://localhost/live/main",
+    "type": "rtmp",
+    "description": "主直播间推流地址",
+    "enabled": true,
+    "createdAt": "2026-05-11T12:27:53.773Z"
+  },
+  {
+    "id": "stream-1778502473775",
+    "name": "备用直播流",
+    "url": "rtmp://localhost/live/backup",
+    "type": "rtmp",
+    "description": "备用直播间推流地址",
+    "enabled": false,
+    "createdAt": "2026-05-11T12:27:53.775Z"
+  }
+]

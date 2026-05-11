@@ -48,13 +48,19 @@ public class AIContentController {
                 .filter(content -> {
                     if (startTime != null && !startTime.isEmpty()) {
                         long itemTime = content.getTimestamp() != null ? content.getTimestamp() : 0;
-                        long start = java.sql.Timestamp.valueOf(startTime.replace("T", " ").replace("Z", "")).getTime();
-                        if (itemTime < start) return false;
+                        try {
+                            long start = java.time.Instant.parse(startTime).toEpochMilli();
+                            if (itemTime < start) return false;
+                        } catch (Exception ignored) {
+                        }
                     }
                     if (endTime != null && !endTime.isEmpty()) {
                         long itemTime = content.getTimestamp() != null ? content.getTimestamp() : 0;
-                        long end = java.sql.Timestamp.valueOf(endTime.replace("T", " ").replace("Z", "")).getTime();
-                        if (itemTime > end) return false;
+                        try {
+                            long end = java.time.Instant.parse(endTime).toEpochMilli();
+                            if (itemTime > end) return false;
+                        } catch (Exception ignored) {
+                        }
                     }
                     return true;
                 })

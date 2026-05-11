@@ -13,7 +13,7 @@ const BACKEND_SERVER_URL = 'http://192.140.160.119:8000'; // 后端服务器地�
 const PRIORITIZE_BACKEND_SERVER = true; // 设为 true 优先使用后端服务器，false 优先使用本地路由
 const REAL_WECHAT_CONFIG = {
     appid: 'wx94289b0d2ca7a802',
-    secret: '10409c1193a326a7b328f675b1776195'
+    secret: process.env.WECHAT_SECRET || 'YOUR_APP_SECRET_HERE'
 };
 const getLocalIP = () => '192.168.31.189';
 const MOCK_SERVER_CONFIG = {
@@ -31,7 +31,7 @@ const getCurrentServerConfig = () => {
             wechat: {
                 useMock: true,
                 appid: 'wx94289b0d2ca7a802',
-                secret: '10409c1193a326a7b328f675b1776195'
+                secret: 'mock_secret_not_used'
             }
         };
     } else {

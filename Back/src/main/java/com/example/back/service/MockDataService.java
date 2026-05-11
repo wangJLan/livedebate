@@ -66,6 +66,8 @@ public class MockDataService {
                 "stream-001",
                 "主直播流",
                 "rtmp://localhost/live/main",
+                "rtmp",
+                "主直播间推流地址",
                 true,
                 "2025-11-17T07:00:00.000Z"
         ));
@@ -73,6 +75,8 @@ public class MockDataService {
                 "stream-002",
                 "备用直播流",
                 "rtmp://localhost/live/backup",
+                "rtmp",
+                "备用直播间推流地址",
                 false,
                 "2025-11-17T07:00:00.000Z"
         ));

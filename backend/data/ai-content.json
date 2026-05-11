@@ -1,0 +1,138 @@
+[
+  {
+    "id": "5443b537-ac64-43b1-b34d-fd93bacf1886",
+    "debateId": "debate-default-001",
+    "text": "正方观点：痛苦是人生成长的必要经历，消除痛苦会让我们失去学习和成长的机会。",
+    "side": "left",
+    "timestamp": 1778502173777,
+    "likes": 45,
+    "confidence": 0.95,
+    "comments": [
+      {
+        "id": "5d3bbda5-6529-4f17-b571-69c79c979ec2",
+        "userId": "user-1",
+        "nickname": "心理学家",
+        "avatar": "🧠",
+        "content": "痛苦确实能促进心理成长，但过度的痛苦也可能造成创伤",
+        "likes": 15,
+        "timestamp": "2026-05-11T12:24:53.777Z"
+      },
+      {
+        "id": "d99f9803-5ef5-4e99-b3e4-91ba664b6548",
+        "userId": "user-2",
+        "nickname": "哲学家",
+        "avatar": "🤔",
+        "content": "尼采说过，那些杀不死我们的，会让我们更强大",
+        "likes": 23,
+        "timestamp": "2026-05-11T12:23:53.777Z"
+      }
+    ]
+  },
+  {
+    "id": "1cddf0b0-99b9-4f30-8c08-e3b3f6427632",
+    "debateId": "debate-default-001",
+    "text": "反方观点：如果能够消除痛苦，为什么不呢？痛苦本身没有价值，消除痛苦可以让人更专注于积极的事情。",
+    "side": "right",
+    "timestamp": 1778502233777,
+    "likes": 52,
+    "confidence": 0.92,
+    "comments": [
+      {
+        "id": "f970ef43-330b-4aa2-8d2e-e2901e51b852",
+        "userId": "user-3",
+        "nickname": "医生",
+        "avatar": "👨‍⚕️",
+        "content": "作为医生，我见过太多不必要的痛苦，如果能消除，我支持",
+        "likes": 18,
+        "timestamp": "2026-05-11T12:25:53.777Z"
+      },
+      {
+        "id": "0a5ac8f7-5ff6-42c7-9c41-b27541a42b2d",
+        "userId": "user-4",
+        "nickname": "患者家属",
+        "avatar": "💝",
+        "content": "看着亲人痛苦，我多么希望有这样的按钮",
+        "likes": 31,
+        "timestamp": "2026-05-11T12:24:53.777Z"
+      }
+    ]
+  },
+  {
+    "id": "f334799c-a56d-43a8-84e0-4521ffa54c15",
+    "debateId": "debate-default-001",
+    "text": "正方回应：痛苦让我们学会同理心，如果所有人都没有痛苦经历，我们如何理解他人的苦难？",
+    "side": "left",
+    "timestamp": 1778502293777,
+    "likes": 38,
+    "confidence": 0.9,
+    "comments": [
+      {
+        "id": "832fa242-c0b9-4b5b-9d4c-1570783af9e3",
+        "userId": "user-5",
+        "nickname": "社工",
+        "avatar": "🤝",
+        "content": "同理心确实需要痛苦的经历来培养",
+        "likes": 12,
+        "timestamp": "2026-05-11T12:26:53.777Z"
+      },
+      {
+        "id": "e7c94cec-db6d-4cba-93c0-d6b945c0ca01",
+        "userId": "user-6",
+        "nickname": "作家",
+        "avatar": "📚",
+        "content": "很多伟大的文学作品都源于作者的痛苦经历",
+        "likes": 19,
+        "timestamp": "2026-05-11T12:25:53.777Z"
+      }
+    ]
+  },
+  {
+    "id": "f0ed315f-05e5-4162-bab4-1ace52de79fa",
+    "debateId": "debate-default-001",
+    "text": "反方回应：我们可以通过其他方式培养同理心，比如阅读、教育。消除痛苦不等于消除所有负面情绪。",
+    "side": "right",
+    "timestamp": 1778502353777,
+    "likes": 41,
+    "confidence": 0.88,
+    "comments": [
+      {
+        "id": "3ba7a524-ac34-4aae-bd0d-e30546da0e62",
+        "userId": "user-7",
+        "nickname": "教育工作者",
+        "avatar": "👩‍🏫",
+        "content": "教育确实可以培养同理心，不一定需要亲身经历痛苦",
+        "likes": 16,
+        "timestamp": "2026-05-11T12:26:53.777Z"
+      },
+      {
+        "id": "616e3c79-9941-4a8a-ac67-3d799d55b8ba",
+        "userId": "user-8",
+        "nickname": "心理咨询师",
+        "avatar": "💭",
+        "content": "区分痛苦和负面情绪很重要，这个按钮可能只针对真正的痛苦",
+        "likes": 8,
+        "timestamp": "2026-05-11T12:27:53.777Z"
+      }
+    ]
+  },
+  {
+    "id": "624f0570-ba4a-4886-abdf-f1a7511bd4a4",
+    "debateId": "debate-default-001",
+    "text": "正方总结：痛苦是人性的一部分，消除痛苦可能会让我们失去作为人的完整性。",
+    "side": "left",
+    "timestamp": 1778502413777,
+    "likes": 29,
+    "confidence": 0.96,
+    "comments": [
+      {
+        "id": "b0438371-719e-48f2-8212-0ab7036e192c",
+        "userId": "user-9",
+        "nickname": "神学家",
+        "avatar": "⛪",
+        "content": "痛苦在宗教和哲学中都有其深层意义",
+        "likes": 14,
+        "timestamp": "2026-05-11T12:27:53.777Z"
+      }
+    ]
+  }
+]
