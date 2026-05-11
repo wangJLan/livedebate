@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "直播辩论系统 - 全栈项目",
   "scripts": {
-    "install:all": "cd live-gateway && npm install",
+    "install:all": "npm install",
     "start": "node live-gateway/gateway.js",
     "dev": "cd live-gateway && npm run dev"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^4.0.0",
+    "uuid": "^8.3.2",
+    "ws": "^8.18.3"
   },
   "engines": {
     "node": ">=18.0.0"
