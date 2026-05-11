@@ -4,9 +4,8 @@
   "description": "直播辩论系统 - 全栈项目",
   "scripts": {
     "install:all": "cd live-gateway && npm install",
-    "start": "node start.js",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:gateway": "cd live-gateway && npm run dev"
+    "start": "node live-gateway/gateway.js",
+    "dev": "cd live-gateway && npm run dev"
   },
   "engines": {
     "node": ">=18.0.0"
