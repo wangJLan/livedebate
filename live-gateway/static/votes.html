@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投票数据 - 直播辩论系统</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', 'PingFang SC', sans-serif;
+      background: #1a2326; color: #e0e0e0; min-height: 100vh;
+    }
+    .bg-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(ellipse at 35% 25%, rgba(231,76,60,0.06) 0%, transparent 55%),
+                  radial-gradient(ellipse at 65% 25%, rgba(52,152,219,0.06) 0%, transparent 55%),
+                  radial-gradient(ellipse at 50% 80%, rgba(102,126,234,0.04) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 30px; position: relative; z-index: 1; }
+
+    /* Header */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 28px;
+    }
+    .header h1 { font-size: 24px; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .header h1 span { color: #888; font-size: 14px; font-weight: 400; }
+    .header .nav-links { display: flex; gap: 12px; }
+    .header .nav-links a { color: #888; text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; }
+    .header .nav-links a:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 9999;
+      padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+
+    /* Debate topic */
+    .topic-section {
+      text-align: center; margin-bottom: 30px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 28px;
+    }
+    .topic-section .topic-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .topic-section h2 { font-size: 24px; color: #fff; margin-bottom: 8px; }
+    .topic-section .topic-desc { font-size: 14px; color: #888; max-width: 600px; margin: 0 auto; }
+
+    /* Vote battle */
+    .vote-battle { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; margin-bottom: 24px; align-items: center; }
+
+    .vote-side {
+      background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.06);
+      border-radius: 20px; padding: 32px 24px; text-align: center; cursor: pointer;
+      transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .vote-side:hover { transform: translateY(-4px); }
+    .vote-side:active { transform: translateY(-1px); }
+    .vote-side.left:hover { border-color: rgba(231,76,60,0.6); box-shadow: 0 12px 35px rgba(231,76,60,0.2); background: rgba(231,76,60,0.08); }
+    .vote-side.right:hover { border-color: rgba(52,152,219,0.6); box-shadow: 0 12px 35px rgba(52,152,219,0.2); background: rgba(52,152,219,0.08); }
+
+    .vote-side .side-emoji { font-size: 48px; margin-bottom: 12px; }
+    .vote-side .side-name { font-size: 14px; color: #888; margin-bottom: 4px; }
+    .vote-side .side-position { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+    .vote-side.left .side-position { color: #e74c3c; }
+    .vote-side.right .side-position { color: #3498db; }
+    .vote-side .side-hint { font-size: 11px; color: #555; margin-bottom: 14px; }
+
+    .vote-side .vote-count {
+      font-size: 42px; font-weight: 700; line-height: 1; margin-bottom: 4px;
+    }
+    .vote-side.left .vote-count { color: #e74c3c; }
+    .vote-side.right .vote-count { color: #3498db; }
+    .vote-side .vote-label { font-size: 12px; color: #666; }
+
+    .vote-divider {
+      text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .vote-divider .vs {
+      font-size: 32px; font-weight: 900; color: #333; line-height: 1;
+    }
+    .vote-divider .total {
+      font-size: 12px; color: #555; white-space: nowrap;
+    }
+
+    /* Progress bar */
+    .progress-section {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 24px; margin-bottom: 24px;
+    }
+    .progress-section h3 {
+      font-size: 14px; color: #999; margin-bottom: 20px; text-align: center;
+    }
+    .progress-bar-wrap { margin-bottom: 14px; }
+    .progress-bar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .progress-bar-label { width: 44px; text-align: right; font-size: 13px; font-weight: 600; }
+    .progress-bar-label.r { color: #e74c3c; }
+    .progress-bar-label.b { color: #3498db; }
+    .progress-bar-track { flex: 1; height: 36px; background: rgba(255,255,255,0.04); border-radius: 18px; overflow: hidden; position: relative; }
+    .progress-bar-fill { height: 100%; border-radius: 18px; display: flex; align-items: center; padding: 0 16px; font-size: 13px; font-weight: 600; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-bar-fill.r { background: linear-gradient(90deg, #c0392b, #e74c3c); justify-content: flex-start; }
+    .progress-bar-fill.b { background: linear-gradient(90deg, #2980b9, #3498db); justify-content: flex-end; }
+    .progress-bar-pct { font-size: 16px; font-weight: 700; width: 52px; text-align: center; }
+    .progress-bar-pct.r { color: #e74c3c; }
+    .progress-bar-pct.b { color: #3498db; }
+
+    /* Chart */
+    .chart-section {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 24px; margin-bottom: 24px;
+    }
+    .chart-section h3 { font-size: 14px; color: #999; margin-bottom: 8px; text-align: center; }
+    #pieChart { width: 100%; height: 320px; }
+
+    /* Refresh bar */
+    .refresh-bar { text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 12px; align-items: center; }
+    .refresh-bar .auto-refresh { font-size: 12px; color: #555; }
+    .btn {
+      border: none; border-radius: 8px; padding: 10px 22px; font-size: 13px;
+      cursor: pointer; font-weight: 600; transition: all 0.2s; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: #aaa; border: 1px solid rgba(255,255,255,0.15); }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+    /* Ripple */
+    .ripple {
+      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.2);
+      transform: scale(0); animation: ripple 0.6s ease-out; pointer-events: none;
+    }
+    @keyframes ripple { to { transform: scale(5); opacity: 0; } }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .pulse { animation: pulse 0.4s ease-in-out; }
+
+    @media (max-width: 640px) {
+      .vote-battle { grid-template-columns: 1fr; }
+      .vote-divider { flex-direction: row; gap: 12px; padding: 16px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-overlay"></div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🗳 实时投票 <span>Live Vote</span></h1>
+      <div class="nav-links">
+        <a href="/">🏠 首页</a>
+        <a href="/dashboard">📊 数据大屏</a>
+        <a href="/admin">⚙ 管理后台</a>
+      </div>
+    </div>
+
+    <!-- Topic -->
+    <div class="topic-section">
+      <div class="topic-label">CURRENT DEBATE TOPIC</div>
+      <h2 id="topicTitle">加载中...</h2>
+      <p class="topic-desc" id="topicDesc"></p>
+    </div>
+
+    <!-- Vote Battle -->
+    <div class="vote-battle">
+      <div class="vote-side left" id="leftSide" onclick="vote('left')">
+        <div class="side-emoji">🔴</div>
+        <div class="side-name">正方立场</div>
+        <div class="side-position" id="leftPos">--</div>
+        <div class="side-hint">👆 点击此处投票</div>
+        <div class="vote-count" id="leftVotes">0</div>
+        <div class="vote-label">票</div>
+      </div>
+
+      <div class="vote-divider">
+        <div class="vs">VS</div>
+        <div class="total">共 <strong id="totalVotes">0</strong> 票</div>
+      </div>
+
+      <div class="vote-side right" id="rightSide" onclick="vote('right')">
+        <div class="side-emoji">🔵</div>
+        <div class="side-name">反方立场</div>
+        <div class="side-position" id="rightPos">--</div>
+        <div class="side-hint">👆 点击此处投票</div>
+        <div class="vote-count" id="rightVotes">0</div>
+        <div class="vote-label">票</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-section">
+      <h3>投票比例分布</h3>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-row">
+          <span class="progress-bar-label r">正方</span>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill r" id="leftBar" style="width:50%"></div>
+          </div>
+          <span class="progress-bar-pct r" id="leftPct">50%</span>
+        </div>
+        <div class="progress-bar-row">
+          <span class="progress-bar-label b">反方</span>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill b" id="rightBar" style="width:50%"></div>
+          </div>
+          <span class="progress-bar-pct b" id="rightPct">50%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-section">
+      <h3>票数占比可视化</h3>
+      <div id="pieChart"></div>
+    </div>
+
+    <!-- Refresh -->
+    <div class="refresh-bar">
+      <span class="auto-refresh">🔄 每 8 秒自动刷新</span>
+      <button class="btn btn-outline" onclick="loadData()">🔃 立即刷新</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let pieChart = null;
+
+    function showToast(msg, color) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = color || '#27ae60';
+      t.style.color = '#fff';
+      t.className = 'toast show';
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function ripple(el) {
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const size = Math.max(el.offsetWidth, el.offsetHeight);
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = '50%'; r.style.top = '50%';
+      r.style.marginLeft = (-size/2) + 'px';
+      r.style.marginTop = (-size/2) + 'px';
+      el.appendChild(r);
+      setTimeout(() => r.remove(), 600);
+    }
+
+    async function loadData() {
+      try {
+        const [voteRes, topicRes] = await Promise.all([
+          fetch('/api/votes'), fetch('/api/debate-topic')
+        ]);
+        const voteData = (await voteRes.json()).data;
+        const topicData = (await topicRes.json()).data;
+
+        document.getElementById('topicTitle').textContent = topicData.title;
+        document.getElementById('topicDesc').textContent = topicData.description || '';
+        document.getElementById('leftPos').textContent = topicData.leftPosition || '--';
+        document.getElementById('rightPos').textContent = topicData.rightPosition || '--';
+
+        const lv = voteData.leftVotes, rv = voteData.rightVotes;
+        const total = lv + rv;
+        const lp = voteData.leftPercentage, rp = voteData.rightPercentage;
+
+        document.getElementById('leftVotes').textContent = lv;
+        document.getElementById('rightVotes').textContent = rv;
+        document.getElementById('totalVotes').textContent = total;
+        document.getElementById('leftPct').textContent = lp + '%';
+        document.getElementById('rightPct').textContent = rp + '%';
+        document.getElementById('leftBar').style.width = lp + '%';
+        document.getElementById('rightBar').style.width = rp + '%';
+
+        updateChart(lp, rp);
+      } catch(e) { console.error(e); }
+    }
+
+    function updateChart(lp, rp) {
+      const dom = document.getElementById('pieChart');
+      if (!pieChart) pieChart = echarts.init(dom);
+      pieChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'item', formatter: '{b}: {c}%' },
+        legend: { bottom: 0, textStyle: { color: '#999' } },
+        series: [{
+          type: 'pie',
+          radius: ['50%', '75%'],
+          center: ['50%', '48%'],
+          itemStyle: { borderRadius: 8, borderColor: '#1a2326', borderWidth: 5 },
+          label: { color: '#aaa', fontSize: 13, formatter: '{b}\n{d}%' },
+          emphasis: { label: { fontSize: 20, fontWeight: 'bold' }, scaleSize: 10 },
+          data: [
+            { value: lp || 0.01, name: '正方', itemStyle: { color: '#e74c3c' } },
+            { value: rp || 0.01, name: '反方', itemStyle: { color: '#3498db' } }
+          ]
+        }]
+      });
+    }
+
+    async function vote(side) {
+      const card = document.getElementById(side === 'left' ? 'leftSide' : 'rightSide');
+      ripple(card);
+      card.classList.add('pulse');
+      setTimeout(() => card.classList.remove('pulse'), 400);
+
+      try {
+        const res = await fetch('/api/user-vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ side: side, votes: 10 })
+        });
+        const json = await res.json();
+        if (json.code === 0) {
+          const name = side === 'left' ? '正方' : '反方';
+          showToast('✅ 已为' + name + '投票 +10 票！', '#27ae60');
+          loadData();
+        } else {
+          showToast(json.message || '投票失败', '#e74c3c');
+        }
+      } catch(e) { showToast('网络错误', '#e74c3c'); }
+    }
+
+    window.addEventListener('resize', () => { if (pieChart) pieChart.resize(); });
+    loadData();
+    setInterval(loadData, 8000);
+  </script>
+</body>
+</html>

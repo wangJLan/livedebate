@@ -94,6 +94,11 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'dashboard.html'));
 });
 
+// ==================== 投票展示页 ====================
+app.get('/votes', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static', 'votes.html'));
+});
+
 // ==================== 管理后台静态页面 ====================
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'index.html'));
